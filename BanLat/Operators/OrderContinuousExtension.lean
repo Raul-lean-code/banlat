@@ -22,6 +22,8 @@ namespace VectorSublattice
 variable {X : Type u} [AddCommGroup X] [Lattice X] [IsOrderedAddMonoid X]
   [VectorLattice X] {Y : VectorSublattice X}
 
+/-- If `Y` is order dense in the Archimedean space `X`, every positive `x` is the supremum
+in `X` of the elements of `Y ∩ [0, x]`. -/
 private lemma isLUB_positiveBelow [IsVLArchimedean X]
     (hd : Y.IsOrderDense) {x : X} (hx : 0 ≤ x) :
     IsLUB ((fun y : Y ↦ (y : X)) '' {y : Y | 0 ≤ y ∧ (y : X) ≤ x}) x := by
@@ -65,7 +67,8 @@ private lemma extensionValue_nonneg (hm : Y.IsMajorizing) {T : Y →ₗ[ℝ] Z}
   simpa only [map_zero] using
     (extensionValue_isLUB hm hT hx).1 ⟨0, ⟨le_rfl, hx⟩, rfl⟩
 
--- An ambient supremum yields an intrinsic supremum after cutting down by an element of Y.
+/-- If an increasing net `aᵢ` in `Y` has supremum `x` in `X` and `y ∈ Y` satisfies
+`y ≤ x`, then the net `aᵢ ⊓ y` has supremum `y` in `Y`. -/
 private lemma isLUB_inf_in_sublattice {ι : Type u} [Preorder ι]
     [IsDirected ι (· ≤ ·)] [Nonempty ι] {a : ι → Y} {x : X}
     (ha : Monotone a) (hx : IsLUB (range fun i ↦ (a i : X)) x)
@@ -79,6 +82,8 @@ private lemma isLUB_inf_in_sublattice {ι : Type u} [Preorder ι]
     hz ⟨i, rfl⟩)
   simpa only [inf_eq_right.mpr hy] using hle
 
+/-- If an increasing positive net in `Y` has supremum `x` in `X`, its image under the
+positive order-continuous operator `T` has supremum `extensionValue T x` in `Z`. -/
 private lemma extensionValue_isLUB_of_monotone (hm : Y.IsMajorizing)
     {T : Y →ₗ[ℝ] Z} (hT : Positive T) (hc : IsOrderContinuousOp T)
     {ι : Type u} [Preorder ι] [IsDirected ι (· ≤ ·)] [Nonempty ι]
@@ -175,6 +180,8 @@ private lemma exists_positive_extension_value [IsVLArchimedean X]
   rw [extensionValue_coe hm hT (posPart_nonneg y),
     extensionValue_coe hm hT (negPart_nonneg y), ← map_sub, posPart_sub_negPart]
 
+/-- For order-dense `Y`, the union of `Y ∩ [0, a i]` along an increasing positive net
+with supremum `x` in `X` is nonempty, directed, and has supremum `x` in `X`. -/
 private lemma positiveBelow_union [IsVLArchimedean X] (hd : Y.IsOrderDense)
     {ι : Type u} [Preorder ι] [IsDirected ι (· ≤ ·)] [Nonempty ι]
     {a : ι → X} (ha : Monotone a) (ha0 : ∀ i, 0 ≤ a i)
@@ -196,6 +203,8 @@ private lemma positiveBelow_union [IsVLArchimedean X] (hd : Y.IsOrderDense)
       rintro _ ⟨y, hy, rfl⟩
       exact hb ⟨y, ⟨hy.1, i, hy.2⟩, rfl⟩
 
+/-- The positive extension given by the supremum formula sends an increasing positive net
+with supremum `x` in `X` to a net with supremum `S x` in `Z`. -/
 private lemma extension_preserves_isLUB [IsVLArchimedean X]
     (hd : Y.IsOrderDense) (hm : Y.IsMajorizing) {T : Y →ₗ[ℝ] Z}
     (hT : Positive T) (hc : IsOrderContinuousOp T) {S : X →ₗ[ℝ] Z}
@@ -218,6 +227,8 @@ private lemma extension_preserves_isLUB [IsVLArchimedean X]
     exact ((Positive.monotone_iff.mpr hS) hyi).trans (hb ⟨i, rfl⟩)
 
 omit [VectorLattice X] in
+/-- If a decreasing net has infimum zero in `X`, then for each fixed `i` the tail differences
+`a i - a j`, with `i ≤ j`, have supremum `a i` in `X`. -/
 private lemma isLUB_sub_tail {ι : Type u} [Preorder ι] [IsDirected ι (· ≤ ·)]
     {a : ι → X} (ha : Antitone a) (hglb : IsGLB (range a) 0) (i : ι) :
     IsLUB (range fun j : {j : ι // i ≤ j} ↦ a i - a j) (a i) := by
@@ -262,6 +273,8 @@ private lemma orderContinuous_of_preserves_positive_isLUB {S : X →ₗ[ℝ] Z}
     exact sub_le_sub_left hbj _
   exact (le_sub_self_iff _).mp (hsup.2 hupper)
 
+/-- Every order-continuous linear extension of `T` has, at each positive `x`, the value
+given by the supremum in `Z` of `T y` over `y ∈ Y ∩ [0, x]`. -/
 private lemma extension_eq_value [IsVLArchimedean X]
     (hd : Y.IsOrderDense) (hm : Y.IsMajorizing) {T : Y →ₗ[ℝ] Z}
     (hT : Positive T) {R : X →ₗ[ℝ] Z} (hR : IsOrderContinuousOp R)
@@ -281,9 +294,11 @@ private lemma extension_eq_value [IsVLArchimedean X]
   exact le_antisymm (hRc.le hTc (fun y ↦ (hext y.val).le))
     (hTc.le hRc (fun y ↦ (hext y.val).ge))
 
-/-- A positive order-continuous operator on an order-dense majorizing sublattice extends
-positively to an Archimedean vector lattice. Its positive values are the indicated suprema,
-and it is unique among all order-continuous linear extensions. -/
+/-- Veksler’s extension theorem: a positive order-continuous operator from an order-dense
+majorizing sublattice of an Archimedean vector lattice into an order-complete vector lattice
+has a positive order-continuous extension to the whole space. Its values at positive `x`
+are the suprema in `Z` of `T y` over `y ∈ Y ∩ [0, x]`, and it is unique among all
+order-continuous linear extensions. -/
 theorem exists_positive_orderContinuous_extension [IsVLArchimedean X]
     (hd : Y.IsOrderDense) (hm : Y.IsMajorizing) {T : Y →ₗ[ℝ] Z}
     (hT : Positive T) (hc : IsOrderContinuousOp T) :

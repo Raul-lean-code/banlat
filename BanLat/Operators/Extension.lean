@@ -7,8 +7,8 @@ import BanLat.Dual
 /-!
 # Positive extensions of continuous functionals
 
-A positive continuous real functional on a vector sublattice of a normed vector lattice
-extends to a positive continuous functional on the whole space with the same norm.
+The positive Hahn–Banach theorem extends a positive continuous real functional on a vector
+sublattice of a normed vector lattice to a positive continuous functional with the same norm.
 The sublattice has its inherited norm; no completeness or closedness is required.
 -/
 
@@ -57,8 +57,9 @@ private lemma norm_le_of_le_norm_posPart {g : X →ₗ[ℝ] ℝ} {C : ℝ}
     _ ≤ C * ‖(|x|)⁺‖ := hg |x|
     _ = C * ‖x‖ := by rw [posPart_of_nonneg (abs_nonneg _), norm_abs_eq_norm]
 
-/-- A positive continuous functional on a vector sublattice extends to a positive continuous
-functional on the ambient normed vector lattice, preserving its norm. -/
+/-- The positive Hahn–Banach theorem: a positive continuous functional on a vector sublattice
+extends to a positive continuous functional on the ambient normed vector lattice,
+preserving its norm. -/
 theorem exists_positive_extension_norm_eq (Y : VectorSublattice X)
     (f : StrongDual ℝ Y) (hf : 0 ≤ f) :
     ∃ g : StrongDual ℝ X, 0 ≤ g ∧ (∀ y : Y, g y = f y) ∧ ‖g‖ = ‖f‖ := by
