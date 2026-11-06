@@ -24,14 +24,15 @@ variable {X Z : Type*} [AddCommGroup X] [Lattice X] [IsOrderedAddMonoid X]
   [VectorLattice X] [AddCommGroup Z] [ConditionallyCompleteLattice Z]
   [IsOrderedAddMonoid Z] [VectorLattice Z]
 
+/-- If `Y` is majorizing in `X`, then for every `x ∈ X`, the set of values `T y`
+over all `y ∈ Y` satisfying `x ≤ y` is nonempty. -/
 private lemma majorant_values_nonempty (Y : VectorSublattice X) (hY : Y.IsMajorizing)
     (T : Y →ₗ[ℝ] Z) (x : X) : (T '' {y : Y | x ≤ (y : X)}).Nonempty := by
   obtain ⟨y, hy, hxy⟩ := hY x
   exact ⟨T ⟨y, hy⟩, ⟨⟨y, hy⟩, hxy, rfl⟩⟩
 
-/-- The values of `T` on majorants of `x` in `Y` are bounded below: majorization gives
-`v ∈ Y` with `-x ≤ v`, so `-v ≤ x`. Positivity makes `T (-v)` a lower bound for all these
-values, allowing their infimum to define the sublinear envelope. -/
+/-- If `Y` is majorizing in `X` and `T` is positive, then for every `x ∈ X`,
+the set of values `T y` over all `y ∈ Y` satisfying `x ≤ y` is bounded below in `Z`. -/
 private lemma majorant_values_bddBelow (Y : VectorSublattice X) (hY : Y.IsMajorizing)
     (T : Y →ₗ[ℝ] Z) (hT : Positive T) (x : X) :
     BddBelow (T '' {y : Y | x ≤ (y : X)}) := by
@@ -40,6 +41,9 @@ private lemma majorant_values_bddBelow (Y : VectorSublattice X) (hY : Y.IsMajori
   rintro _ ⟨y, hy, rfl⟩
   exact (Positive.monotone_iff.mpr hT) ((neg_le.mp hxv).trans hy)
 
+/-- If `Y` is majorizing in `X` and `T` is positive, then for every `y ∈ Y`,
+the infimum in `Z` of the values `T w` over all `w ∈ Y` satisfying `y ≤ w`
+is exactly `T y`. -/
 private lemma majorant_inf_eq (Y : VectorSublattice X) (hY : Y.IsMajorizing)
     (T : Y →ₗ[ℝ] Z) (hT : Positive T) (y : Y) :
     sInf (T '' {w : Y | (y : X) ≤ (w : X)}) = T y := by
@@ -49,6 +53,8 @@ private lemma majorant_inf_eq (Y : VectorSublattice X) (hY : Y.IsMajorizing)
     rintro _ ⟨w, hw, rfl⟩
     exact (Positive.monotone_iff.mpr hT) hw
 
+/-- If `Y` is majorizing in `X` and `T` is positive, the function assigning to each
+`x ∈ X` the infimum in `Z` of `T w` over all `w ∈ Y` with `x ≤ w` is subadditive. -/
 private lemma majorant_inf_add_le (Y : VectorSublattice X) (hY : Y.IsMajorizing)
     (T : Y →ₗ[ℝ] Z) (hT : Positive T) (x y : X) :
     sInf (T '' {w : Y | x + y ≤ (w : X)}) ≤
@@ -64,6 +70,9 @@ private lemma majorant_inf_add_le (Y : VectorSublattice X) (hY : Y.IsMajorizing)
   exact csInf_le (majorant_values_bddBelow Y hY T hT (x + y))
     ⟨u + v, add_le_add hu hv, rfl⟩
 
+/-- For any `x ∈ X` and positive real `r`, the set of values `T w` over
+`w ∈ Y` satisfying `r • x ≤ w` equals the set of values `r • T v` over
+`v ∈ Y` satisfying `x ≤ v`. -/
 private lemma majorant_values_smul (Y : VectorSublattice X) (T : Y →ₗ[ℝ] Z)
     (x : X) {r : ℝ} (hr : 0 < r) :
     T '' {w : Y | r • x ≤ (w : X)} =
@@ -79,6 +88,9 @@ private lemma majorant_values_smul (Y : VectorSublattice X) (T : Y →ₗ[ℝ] Z
   · rintro ⟨_, ⟨w, hw, rfl⟩, rfl⟩
     exact ⟨r • w, smul_le_smul_of_nonneg_left hw hr.le, T.map_smul r w⟩
 
+/-- If `Y` is majorizing in `X` and `T` is positive, then for every positive real `r`,
+the infimum in `Z` of `T w` over `w ∈ Y` satisfying `r • x ≤ w` equals
+`r` times the infimum of `T w` over `w ∈ Y` satisfying `x ≤ w`. -/
 private lemma majorant_inf_smul (Y : VectorSublattice X) (hY : Y.IsMajorizing)
     (T : Y →ₗ[ℝ] Z) (hT : Positive T) (r : ℝ) (hr : 0 < r) (x : X) :
     sInf (T '' {w : Y | r • x ≤ (w : X)}) =
